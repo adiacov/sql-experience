@@ -4,6 +4,11 @@
 SOURCE:  
 https://mystery.knightlab.com/#experienced
 
+#### 0000 schema
+![schema.sql](images/schema.sql.png)
+
+---
+
 #### 001 find the crime
 
 ```
