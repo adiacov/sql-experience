@@ -13,3 +13,4 @@ A place for SQL practice and hacking
 
 1. [SQL Hackerrank - Easy](002-sql-hackerrank/001-sql-practice-easy.md)
 2. [SQL Hackerrank - Medium](002-sql-hackerrank/002-sql-practice-medium.md)
+3. [SQL DataLemur - Medium](003-sql-datalemur/002-sql-practice-medium.md)
