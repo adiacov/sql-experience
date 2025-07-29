@@ -180,4 +180,124 @@ select max(population) - min(population)
 from city
 ```
 
+``` 
+-- Revising Aggregations - The Count Function
+
+select 
+    count(*) as cities
+from city
+where population > 100000
+```
+
+``` 
+-- Revising Aggregations - The Sum Function
+
+select 
+    sum(population) as population
+from city
+where district = 'California'
+```
+
+``` 
+-- Revising Aggregations - Averages
+
+select
+    avg(population) as avg_population
+from city
+where district = 'California'
+```
+
+```
+-- Average Population
+
+select 
+    round(avg(population), 0) as avg_population
+from city
+```
+
+``` 
+-- Japan Population
+
+select
+    sum(population) as jpn_population
+from city
+where countrycode = 'JPN'
+```
+
+``` 
+-- The Blunder
+
+select
+    ceil(avg(salary) - avg(replace(salary, '0', ''))) as avg_salary
+from employees
+
+```
+
+``` 
+-- Weather Observation Station 2
+
+select
+    round(sum(lat_n), 2) as lat,
+    round(sum(long_w), 2) as lon
+from station
+```
+
+``` 
+-- Weather Observation Station 13
+
+select
+    round(sum(lat_n), 4) as lat
+from station
+where lat_n > 38.7880 and lat_n < 137.2345
+```
+
+``` 
+-- Weather Observation Station 14
+
+select
+    round(max(lat_n), 4) as max_lat
+from station
+where lat_n < 137.2345
+```
+
+``` 
+-- Weather Observation Station 15
+
+select
+    round(long_w, 4)
+from station
+where lat_n = (select max(lat_n) from station where lat_n < 137.2345)
+```
+
+``` 
+-- Weather Observation Station 16
+
+select
+    round(min(lat_n), 4)
+from station
+where lat_n > 38.7780
+```
+
+``` 
+-- Weather Observation Station 17
+
+select
+    round(long_w, 4)
+from station
+where lat_n = (select min(lat_n) from station where lat_n > 38.7780)
+```
+
+``` 
+-- Weather Observation Station 18
+
+with manhattan as (
+    select
+        abs(min(lat_n) - max(lat_n)) + abs(min(long_w) - max(long_w)) as distance
+    from station
+)
+select
+    round(m.distance, 4)
+from manhattan m
+```
+
 [HOME](../README.md)
