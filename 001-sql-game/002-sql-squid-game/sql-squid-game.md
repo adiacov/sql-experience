@@ -120,16 +120,52 @@ from (
 
 #### 005 level 5
 
+NOTE: this one was difficult
+
 For the Marbles game, the Front Man needs you to discover who Player 456's closest companion is. First, find the player
 who has interacted with Player 456 the most frequently in daily activities. Then, confirm this player is still alive and
 return a row with both players' first names, and the number of interactions they've had.
 
 ``` 
--- TODO: Continue from here
+with freq as (
+  select
+  	case
+  		when player1_id = 456 then player2_id
+  		else player1_id
+  	end contact_player,
+  	count(*) as contacts
+  from daily_interactions
+  where player1_id = 456 or player2_id = 456
+  group by
+  	case
+  		when player1_id = 456 then player2_id
+  		else player1_id
+  	end
+  order by count(*) desc
+  limit 1
+)
+select 
+	p1.first_name as p1_name,
+	p2.first_name as p2_name,
+	freq.contacts as interactions
+from freq
+join player p1 on p1.id = 456
+join player p2 on p2.id = freq.contact_player
+where exists(
+ 	select 1
+  	from daily_interactions di
+  	where
+  		(
+			(di.player1_id = 456 and di.player2_id = freq.contact_player)
+		  or
+		  	(di.player1_id = freq.contact_player and di.player2_id = 456)
+		)
+  		and p2.status = 'alive'
+)
 ```
 
 ---
 
-NOTE: not ideal, but works
+NOTE: conclusion on the game queries. not ideal, but it works.
 
 [HOME](../../README.md)
