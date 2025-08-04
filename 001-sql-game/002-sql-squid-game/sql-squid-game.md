@@ -166,6 +166,47 @@ where exists(
 
 ---
 
+#### 006 level 6
+
+``` 
+with most_failed_game as (
+  select
+	game_type
+  from equipment e
+  join failure_incidents i on i.failed_equipment_id = e.id
+  group by game_type
+  order by count(e.game_type) desc
+  limit 1
+),
+most_failed_supplier as (
+  select
+  	e.supplier_id
+  from equipment e
+  join failure_incidents i on i.failed_equipment_id = e.id
+  where e.game_type = (select game_type from most_failed_game)
+  group by e.supplier_id
+  order by count(*) desc
+  limit 1
+ ),
+first_failed_date as (
+  select
+  	e.id,
+	min(i.failure_date) as first_failure
+  from equipment e
+  join failure_incidents i on i.failed_equipment_id = e.id
+  group by e.id
+)
+select
+	floor(sum((d.first_failure - e.installation_date) / 365.2425) / count(*)) as avg_lifetime
+from equipment e
+join first_failed_date d on d.id = e.id
+where e.supplier_id = (select supplier_id from most_failed_supplier)
+```
+
+NOTE Level 6: The problem statement is ambiguous. It’s unclear what the output should include. I was under the impression, after reading the requirements, that the output should contain at least four columns: game type, the supplier responsible for the most equipment failures for that game type, the total number of failures for that supplier and game type, and the average lifespan until first failure. However, the game’s solution shows only the average lifespan as the output. It’s frustrating to spend time figuring out how to combine all these elements into a query, only to discover that just a small part is needed. Moreover, the requirements are completely unclear about the final output.
+
+---
+
 NOTE: conclusion on the game queries. not ideal, but it works.
 
 [HOME](../../README.md)

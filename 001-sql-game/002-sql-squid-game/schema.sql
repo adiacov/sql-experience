@@ -58,3 +58,24 @@ CREATE TABLE player_level_5 (
     age SMALLINT,
     status VARCHAR(20)
 );
+
+-- level 6
+CREATE TABLE suppliers (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(50),
+    country VARCHAR(50)
+);
+
+CREATE TABLE equipment (
+    id INT PRIMARY KEY,
+    supplier_id INT REFERENCES suppliers (id),
+    game_type VARCHAR(20),
+    installation_date DATE
+);
+
+CREATE TABLE failure_incidents (
+    id BIGINT PRIMARY KEY,
+    failed_equipment_id BIGINT REFERENCES equipment (id),
+    failure_type VARCHAR(20),
+    failure_date DATE
+);
