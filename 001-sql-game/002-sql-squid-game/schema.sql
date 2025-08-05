@@ -79,3 +79,65 @@ CREATE TABLE failure_incidents (
     failure_type VARCHAR(20),
     failure_date DATE
 );
+
+-- level 7
+CREATE TABLE guard (
+    id INT PRIMARY KEY,
+    assigned_room_id INT REFERENCES room (id),
+    code_name VARCHAR(50),
+    status VARCHAR(20)
+);
+
+CREATE TABLE room (
+    id INT PRIMARY KEY,
+    floor SMALLINT,
+    isVacant BOOLEAN,
+    last_check_time TIME
+);
+
+CREATE TABLE camera (
+    id BIGINT PRIMARY KEY,
+    location VARCHAR(30),
+    movement_detected BOOLEAN,
+    guard_spotted_id INT REFERENCES guard (id),
+    movement_detected_time TIME
+);
+
+-- level 8
+CREATE TABLE player_level_8 (
+    id INT PRIMARY KEY,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    game_id INT REFERENCES glass_bridge (id),
+    survived BOOLEAN,
+    death_description TEXT,
+    last_modified_time_seconds INT
+);
+
+CREATE TABLE glass_bridge (
+    id INT PRIMARY KEY,
+    date DATE
+);
+
+-- level 9
+CREATE TABLE guard (
+    id INT PRIMARY KEY,
+    assigned_post VARCHAR(50),
+    shift_start TIME,
+    shift_end TIME
+);
+
+CREATE TABLE daily_door_access_logs (
+    id INT PRIMARY KEY,
+    guard_id INT REFERENCES guard (id),
+    access_time TIME,
+    door_location VARCHAR(255)
+);
+
+CREATE TABLE game_schedule (
+    id INT PRIMARY KEY,
+    type VARCHAR(50),
+    date DATE,
+    start_time TIME,
+    end_time TIME
+);

@@ -3,8 +3,17 @@
 ## SQL Squid Game
 
 SOURCE: https://datalemur.com/sql-game  
-NOTE: [Mode SQL Tutorial](https://mode.com/sql-tutorial) was very helpful for this SQL Game. In particular the
+NOTE 1: [Mode SQL Tutorial](https://mode.com/sql-tutorial) was very helpful for this SQL Game. In particular the
 intermediate and advanced modules (starting from level 3).
+
+NOTE 2: !!! IMPORTANT. This SQL game is interesting, but the requirements are poorly written. They don't clearly
+describe the expected output. Only after multiple failed attempts to do you discover in the 'Solution' section that
+either
+not all fields are required in the output (e.g., in Level 8, only a few player columns are needed—guess which ones
+without checking the 'Solution'), or the requirement description includes unnecessary information that makes it
+confusing.
+My advice for levels after 5: Try your query without looking at the 'Solution.' If you're confident it should work, but
+it doesn't, compare it with the 'Solution.'
 
 #### 000 schema
 
@@ -168,6 +177,11 @@ where exists(
 
 #### 006 level 6
 
+The guards are investigating equipment durability across different game types, as some equipment has been breaking
+prematurely. Determine the game type with the highest number of equipment failures and identify the supplier responsible
+for the most failures within that game type. Finally, calculate the average lifespan until first failure, in whole
+years (using 365.2425 days per year), of all failed equipment supplied by this supplier for the most faulty game type.
+
 ``` 
 with most_failed_game as (
   select
@@ -203,10 +217,116 @@ join first_failed_date d on d.id = e.id
 where e.supplier_id = (select supplier_id from most_failed_supplier)
 ```
 
-NOTE Level 6: The problem statement is ambiguous. It’s unclear what the output should include. I was under the impression, after reading the requirements, that the output should contain at least four columns: game type, the supplier responsible for the most equipment failures for that game type, the total number of failures for that supplier and game type, and the average lifespan until first failure. However, the game’s solution shows only the average lifespan as the output. It’s frustrating to spend time figuring out how to combine all these elements into a query, only to discover that just a small part is needed. Moreover, the requirements are completely unclear about the final output.
+NOTE Level 6: The problem statement is ambiguous. It’s unclear what the output should include. I was under the
+impression, after reading the requirements, that the output should contain at least four columns: game type, the
+supplier responsible for the most equipment failures for that game type, the total number of failures for that supplier
+and game type, and the average lifespan until first failure. However, the game’s solution shows only the average
+lifespan as the output. It’s frustrating to spend time figuring out how to combine all these elements into a query, only
+to discover that just a small part is needed. Moreover, the requirements are completely unclear about the final output.
 
 ---
 
-NOTE: conclusion on the game queries. not ideal, but it works.
+#### 007 level 7
+
+Create a comprehensive report identifying guards who were missing from their sleeping quarters during off-duty hours.
+This report should include the following details for each missing guard, ordered by guard ID:
+
+Guard Number
+Code Name
+Status
+Last Seen in Room
+Spotted Outside Room Time
+Spotted Outside Room >Location
+Time Between Room and Outside
+Time Range from First to Last Detection of Any Guard
+
+``` 
+with first_to_last_time_range as (
+  select
+  	max(movement_detected_time) - min(movement_detected_time) as time_range
+  from camera
+)
+select
+  g.id,
+  g.code_name,
+  g.status,
+  r.last_check_time,
+  c.movement_detected_time,
+  c.location,
+  c.movement_detected_time - r.last_check_time,
+  (select time_range from first_to_last_time_range)
+from guard g
+join room r on r.id = g.assigned_room_id and r.isVacant = true
+join camera c on c.guard_spotted_id = g.id
+order by g.id
+```
+
+---
+
+#### 008 level 8
+
+Find and display the information for the player with the highest hesitation time among those who were pushed off in the
+game that has the highest average hesitation time before a push occurred.
+
+``` 
+with most_hesitation_game as (
+  select
+  	game_id
+  from player
+  where lower(death_description) like 'push%'
+  group by game_id
+  order by avg(last_moved_time_seconds) desc
+  limit 1
+)
+select
+	id,
+	first_name,
+	last_name,
+	last_moved_time_seconds
+from player
+where game_id = (select * from most_hesitation_game)
+order by last_moved_time_seconds desc
+limit 1
+```
+
+---
+
+#### 009 level 9
+
+Identify who deviated from their assigned position during the Squid Game, and then output a list of guard IDs and access
+times of any OTHER guards who visited the same location during the disappearance timeframe.
+
+``` 
+with last_game as (
+select 
+ start_time, end_time
+from game_schedule
+where type = 'Squid Game'
+order by date desc
+limit 1
+),
+lost_guard as(
+select 
+  distinct g.id, l.door_location
+from guard g
+join daily_door_access_logs l on l.guard_id = g.id
+where shift_start <= (select start_time from last_game)
+	and shift_end >= (select end_time from last_game)
+	and (l.access_time between (select start_time from last_game)
+	and (select end_time from last_game))
+	and l.door_location = 'Upper Management'
+)
+select
+	g.id, l.access_time
+from guard g
+join daily_door_access_logs l on l.guard_id = g.id
+where l.door_location = (select door_location from lost_guard)
+  and (l.access_time between (select start_time from last_game) 
+	   and (select end_time from last_game))
+```
+
+---
+
+NOTE: conclusion on all game queries. not ideal, but it works.
 
 [HOME](../../README.md)
